@@ -18,7 +18,7 @@ public class ReceiptLine {
         this.priceAfterSale = priceAfterSale;
     }
 
-    public static final String formatLine = "[%3s] [%15s] [%6s] [%6s]";
+    public static final String formatLine = "|%3s| %15s| %6s| %6s|";
 
     public static String header() {
         String header = String.format(formatLine, "id", "name", "price", "sale");

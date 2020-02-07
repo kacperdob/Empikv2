@@ -1,11 +1,13 @@
 package shop.audio;
 
+import lombok.Getter;
 import shop.Product;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+@Getter
 public class Audio extends Product {
     LocalDate publishmentDate;
     List<Track> trackList;
