@@ -9,11 +9,8 @@ import java.math.BigDecimal;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReceiptGenerator {
     public ReceiptGenerator(Cart cart) {
@@ -21,11 +18,16 @@ public class ReceiptGenerator {
     }
 
     List<Product> listOfProducts;
+    List<Game> discountGames = new ArrayList<>();
 
     public List<String> recipeGenerator() {
         List<String> receipt = new ArrayList<>();
         receipt.add(ReceiptLine.header());
-        gameListCreator(listOfProducts);
+
+        discountGames = gameDiscountList(
+                mapSorter(
+                        gameListCreator(listOfProducts)));
+
         for (Product product : listOfProducts) {
             ReceiptLine rec = new ReceiptLine(product, calculateDiscount(product));
             receipt.add(rec.receiptLine());
@@ -49,11 +51,10 @@ public class ReceiptGenerator {
         } else if (product instanceof Book) {
             priceAfterDiscount = bookDiscount((Book) product);
             return priceAfterDiscount;
+        } else if (product instanceof Game) {
+            priceAfterDiscount = gameDiscount((Game) product);
+            return priceAfterDiscount;
         }
-//        else if (product instanceof Game) {
-//            String firstPublischer = ((Game) product).getPublisher();
-//
-//        }
 
         return priceAfterDiscount = product.getPrice();
     }
@@ -85,28 +86,28 @@ public class ReceiptGenerator {
 
     public BigDecimal gameDiscount(Game game) {
         BigDecimal priceAfterDiscount = game.getPrice();
-
-
+        if (discountGames.contains(game)) {
+            return BigDecimal.ZERO;
+        }
         return priceAfterDiscount;
     }
 
-    public void gameListCreator (List<Product> listOfProducts) {
+    public Map<String, List<Game>> gameListCreator(List<Product> listOfProducts) {
         List<Game> listOfGames = new ArrayList<>();
         for (Product product : listOfProducts) {
             if (product instanceof Game) {
                 listOfGames.add((Game) product);
             }
         }
-        Map <String, List<Game>> discountControl = new HashMap<>();
+        Map<String, List<Game>> discountControl = new HashMap<>();
         String publisher;
         List<Game> onePublisherGames = new ArrayList<>();
-        for (int i = 0; i < listOfGames.size(); i++){
+        for (int i = 0; i < listOfGames.size(); i++) {
             publisher = listOfGames.get(i).getPublisher();
-            if (discountControl.isEmpty()){
+            if (discountControl.isEmpty()) {
                 onePublisherGames.add(listOfGames.get(i));
                 discountControl.put(publisher, onePublisherGames);
-            }
-            else if (discountControl.containsKey(publisher)){
+            } else if (discountControl.containsKey(publisher)) {
                 List<Game> helpListOfGames = discountControl.get(publisher);
                 helpListOfGames.add(listOfGames.get(i));
                 discountControl.put(publisher, helpListOfGames);
@@ -116,15 +117,49 @@ public class ReceiptGenerator {
                 discountControl.put(publisher, secondOnePublisherGame);
             }
         }
-gamesMapCheck(discountControl);
-
+        //      gamesMapCheck(discountControl);
+        return discountControl;
     }
 
-    public void gamesMapCheck (Map<String, List<Game>> mapToCheck){
-        System.out.println("ilosc wydawców: " + mapToCheck.size());
-        for (int i = 0; i < mapToCheck.size(); i++){
-            System.out.println("gry wydawcy: ");
+    public Map<String, List<Game>> mapSorter(Map<String, List<Game>> mapOfGames) {
+        Map<String, List<Game>> sortedMap = new HashMap<>();
+        for (String key : mapOfGames.keySet()) {
+            List<Game> sortedList = mapOfGames.get(key).stream()
+                    .sorted(Comparator.comparing(Game::getPrice))
+                    .collect(Collectors.toList());
+            sortedMap.put(key, sortedList);
+        }
+        return sortedMap;
+    }
 
+    public List<Game> gameDiscountList(Map<String, List<Game>> sortedMap) {
+        List<Game> listOfDiscountedGames = new ArrayList<>();
+
+        for (String key : sortedMap.keySet()) {
+            listOfDiscountedGames = sortedMap.get(key)
+                    .stream()
+                    .limit(sortedMap.get(key).size() / 3L)
+                    .collect(Collectors.toList());
+        }
+        return listOfDiscountedGames;
+    }
+
+    public void gamesMapCheck(Map<String, List<Game>> mapToCheck) {
+        System.out.println("ilosc wydawców: " + mapToCheck.size());
+        for (String key : mapToCheck.keySet()) {
+            List<Game> onePublisherGames = mapToCheck.get(key);
+            for (Game game : onePublisherGames) {
+                System.out.println("gra " + key + " wydawcy to: " + game.getName());
+            }
+        }
+        List<Game> listaKontrolna = mapToCheck.get("moonlit");
+        List<Game> lista2;
+        lista2 = listaKontrolna.stream()
+                .sorted(Comparator.comparing(Game::getPrice))
+                .collect(Collectors.toList());
+
+        for (Game game : lista2) {
+            System.out.println("gra: " + game.getName() + " koszuje " + game.getPrice());
         }
     }
 }

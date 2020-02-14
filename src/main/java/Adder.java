@@ -64,14 +64,20 @@ public class Adder {
         Product game3 = new Game(
                 6,
                 "diablo3",
-                new BigDecimal("60.00"),
-                "sega"
+                new BigDecimal("20.00"),
+                "moonlit"
         );
         Product game4 = new Game(
                 6,
                 "diablo4",
-                new BigDecimal("70.00"),
-                "moonlitqwerty"
+                new BigDecimal("30.00"),
+                "moonlit"
+        );
+        Product game5 = new Game (
+                7,
+                "diablo45",
+                new BigDecimal("45.00"),
+                "moonlit"
         );
 
         cart.addProduct(audioAlbum);
@@ -83,6 +89,9 @@ public class Adder {
         cart.addProduct(game2);
         cart.addProduct(game3);
         cart.addProduct(game4);
+        cart.addProduct(game5);
+        cart.addProduct(game5);
+        cart.addProduct(game5);
         return cart;
     }
 
