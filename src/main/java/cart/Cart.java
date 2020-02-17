@@ -29,10 +29,4 @@ public class Cart {
         listOfProduct.remove(product);
     }
 
-    public BigDecimal productsPrice() {
-        return listOfProduct
-                .stream()
-                .map(Product::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
    }

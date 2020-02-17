@@ -22,6 +22,13 @@ public class ReceiptGenerator {
 
     public List<String> recipeGenerator() {
         List<String> receipt = new ArrayList<>();
+        BigDecimal totalPrice;
+        BigDecimal totalPriceAfterDiscount = BigDecimal.ZERO;
+        totalPrice = listOfProducts
+                .stream()
+                .map(Product::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         receipt.add(ReceiptLine.header());
 
         discountGames = gameDiscountList(
@@ -29,9 +36,13 @@ public class ReceiptGenerator {
                         gameListCreator(listOfProducts)));
 
         for (Product product : listOfProducts) {
-            ReceiptLine rec = new ReceiptLine(product, calculateDiscount(product));
+            BigDecimal priceAfterDiscount = calculateDiscount(product);
+            ReceiptLine rec = new ReceiptLine(product, priceAfterDiscount);
             receipt.add(rec.receiptLine());
+            totalPriceAfterDiscount = totalPriceAfterDiscount.add(priceAfterDiscount);
         }
+
+        receipt.add(ReceiptLine.footer(totalPrice, totalPriceAfterDiscount));
         return receipt;
     }
 

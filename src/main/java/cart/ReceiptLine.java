@@ -11,11 +11,14 @@ public class ReceiptLine {
     private final BigDecimal price;
     private final BigDecimal priceAfterSale;
 
+
+
     public ReceiptLine(Product product, BigDecimal priceAfterSale) {
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.priceAfterSale = priceAfterSale;
+
     }
 
     public static final String formatLine = "|%3s| %15s| %6s| %6s|";
@@ -30,4 +33,8 @@ public class ReceiptLine {
         return recLine;
     }
 
+    public static String footer (BigDecimal totalPrice, BigDecimal totalPriceAfterDiscount){
+        String footer = String.format(formatLine, " ", "total cost", totalPrice, totalPriceAfterDiscount);
+        return footer;
+    }
 }
